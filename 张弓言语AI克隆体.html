@@ -1,0 +1,2030 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#FFF0F5" />
+  <meta name="description" content="张弓言语理解AI克隆体——拍照传题，逐选项解析" />
+  <title>张弓言语 · AI智能体</title>
+  <link rel="manifest" id="manifestLink" />
+  <link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: linear-gradient(180deg, #fff5f7 0%, #ffeff3 50%, #ffe8ed 100%);
+      --card: rgba(255, 255, 255, 0.96);
+      --primary: #ff8fa3;
+      --primary-dark: #f06c85;
+      --primary-light: #ffd1dc;
+      --accent: #ff9a8b;
+      --text: #5a4a4e;
+      --text-light: #9a858a;
+      --shadow: 0 6px 22px rgba(240, 108, 133, 0.1);
+      --radius-lg: 24px;
+      --radius-md: 18px;
+      --radius-sm: 12px;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    body {
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .app {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      max-width: 520px;
+      margin: 0 auto;
+      width: 100%;
+      position: relative;
+    }
+
+    /* 顶部导航 */
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      background: var(--card);
+      border-bottom: 1px solid rgba(255, 143, 163, 0.12);
+      box-shadow: 0 2px 12px rgba(240, 108, 133, 0.06);
+      z-index: 20;
+      backdrop-filter: blur(10px);
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ffd1dc, #ff8fa3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 3px 10px rgba(255, 143, 163, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nav-avatar svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .nav-avatar::after {
+      content: '';
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      width: 10px;
+      height: 10px;
+      background: #a8e6a8;
+      border: 2px solid #fff;
+      border-radius: 50%;
+    }
+
+    .nav-title h1 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      color: var(--text);
+    }
+
+    .nav-title p {
+      margin: 1px 0 0;
+      font-size: 11px;
+      color: var(--text-light);
+    }
+
+    .nav-btn {
+      width: 36px;
+      height: 36px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(255, 143, 163, 0.12);
+      color: var(--primary-dark);
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .nav-btn:hover { background: rgba(255, 143, 163, 0.24); transform: scale(1.05); }
+
+    /* 聊天区域 */
+    .chat-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 14px 170px;
+      scroll-behavior: smooth;
+    }
+
+    .welcome {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 28px 10px 16px;
+      animation: fadeUp 0.5s ease-out;
+    }
+
+    .welcome-avatar {
+      width: 84px;
+      height: 84px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ffd1dc, #ff8fa3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 20px rgba(255, 143, 163, 0.3);
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+
+    .welcome-avatar svg { width: 100%; height: 100%; }
+
+    .welcome h2 {
+      margin: 0;
+      font-size: 20px;
+      color: var(--primary-dark);
+      font-family: "ZCOOL KuaiLe", cursive;
+      letter-spacing: 1px;
+    }
+
+    .message {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      animation: fadeUp 0.35s ease-out;
+    }
+
+    .message.user { flex-direction: row-reverse; }
+
+    .msg-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 4px;
+      overflow: hidden;
+    }
+
+    .message.ai .msg-avatar {
+      background: linear-gradient(135deg, #ffd1dc, #ff8fa3);
+      box-shadow: 0 2px 8px rgba(255, 143, 163, 0.25);
+    }
+    .message.user .msg-avatar {
+      background: linear-gradient(135deg, #a8e6a8, #7bc97b);
+      box-shadow: 0 2px 8px rgba(123, 201, 123, 0.25);
+    }
+
+    .msg-avatar svg { width: 100%; height: 100%; }
+
+    .msg-content {
+      max-width: calc(100% - 52px);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .msg-bubble {
+      padding: 11px 14px;
+      border-radius: var(--radius-md);
+      font-size: 14.5px;
+      line-height: 1.75;
+      white-space: pre-wrap;
+      word-break: break-word;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .message.ai .msg-bubble {
+      background: var(--card);
+      border: 1px solid rgba(255, 143, 163, 0.12);
+      border-top-left-radius: 5px;
+      color: var(--text);
+    }
+
+    .message.user .msg-bubble {
+      background: linear-gradient(135deg, #ffb3c1, #ff8fa3);
+      color: #fff;
+      border-top-right-radius: 5px;
+    }
+
+    .msg-images {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-width: 240px;
+    }
+
+    .msg-img {
+      max-width: 100%;
+      border-radius: var(--radius-sm);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .msg-img:hover { transform: scale(1.02); }
+
+    .msg-time {
+      font-size: 10px;
+      color: #c4a8ae;
+      margin: 0 4px;
+    }
+
+    /* 输入区域 */
+    .input-wrapper {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--card);
+      border-top: 1px solid rgba(255, 143, 163, 0.12);
+      box-shadow: 0 -4px 20px rgba(240, 108, 133, 0.08);
+      z-index: 30;
+      padding-bottom: env(safe-area-inset-bottom, 0);
+    }
+
+    .input-inner {
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 10px 12px 14px;
+    }
+
+    .image-preview-bar {
+      display: none;
+      gap: 8px;
+      padding: 0 2px 8px;
+      overflow-x: auto;
+    }
+
+    .image-preview-bar.active { display: flex; }
+
+    .preview-item {
+      position: relative;
+      flex-shrink: 0;
+      width: 64px;
+      height: 64px;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      border: 2px solid var(--primary-light);
+    }
+
+    .preview-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .preview-remove {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.5);
+      color: #fff;
+      border: none;
+      font-size: 11px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .input-toolbar {
+      display: flex;
+      align-items: flex-end;
+      gap: 7px;
+    }
+
+    .tool-btn {
+      width: 40px;
+      height: 40px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(255, 143, 163, 0.12);
+      color: var(--primary-dark);
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .tool-btn:hover { background: rgba(255, 143, 163, 0.24); transform: scale(1.05); }
+    .tool-btn.send {
+      background: linear-gradient(135deg, #ff8fa3, #f06c85);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(240, 108, 133, 0.32);
+    }
+    .tool-btn.send:disabled { opacity: 0.55; transform: none; }
+    .tool-btn.voice.recording {
+      background: linear-gradient(135deg, #ff9a8b, #ff7a6b);
+      color: #fff;
+      animation: pulse 1.2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(255, 122, 107, 0.4); }
+      50% { box-shadow: 0 0 0 10px rgba(255, 122, 107, 0); }
+    }
+
+    .input-box {
+      flex: 1;
+      min-height: 42px;
+      max-height: 110px;
+      padding: 10px 14px;
+      border-radius: 21px;
+      border: 1px solid rgba(255, 143, 163, 0.35);
+      background: rgba(255,255,255,0.8);
+      font-family: inherit;
+      font-size: 15px;
+      line-height: 1.5;
+      resize: none;
+      outline: none;
+      color: var(--text);
+    }
+
+    .input-box:focus { border-color: var(--primary); background: #fff; }
+
+    .hint-bar {
+      display: flex;
+      gap: 8px;
+      padding: 8px 2px 0;
+      overflow-x: auto;
+    }
+
+    .hint-chip {
+      flex-shrink: 0;
+      padding: 5px 11px;
+      border-radius: 14px;
+      background: rgba(255, 143, 163, 0.1);
+      border: 1px solid rgba(255, 143, 163, 0.18);
+      font-size: 11.5px;
+      color: var(--text-light);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .hint-chip:hover { background: rgba(255, 143, 163, 0.2); color: var(--primary-dark); }
+
+    /* 侧边功能导航栏 */
+    .sidebar-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      z-index: 60;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s;
+    }
+
+    .sidebar-overlay.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 260px;
+      max-width: 80vw;
+      background: var(--card);
+      box-shadow: 4px 0 24px rgba(240, 108, 133, 0.12);
+      z-index: 70;
+      transform: translateX(-100%);
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      display: flex;
+      flex-direction: column;
+      padding-bottom: env(safe-area-inset-bottom, 0);
+    }
+
+    .sidebar.open { transform: translateX(0); }
+
+    .sidebar-header {
+      padding: 24px 18px 18px;
+      background: linear-gradient(135deg, #ffd1dc, #ff8fa3);
+      color: #fff;
+    }
+
+    .sidebar-avatar {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .sidebar-avatar svg { width: 100%; height: 100%; }
+
+    .sidebar-header h3 {
+      margin: 0 0 2px;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .sidebar-header p {
+      margin: 0;
+      font-size: 11px;
+      opacity: 0.92;
+    }
+
+    .sidebar-menu {
+      flex: 1;
+      padding: 12px 14px;
+      overflow-y: auto;
+    }
+
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 13px 12px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 4px;
+    }
+
+    .sidebar-item:hover { background: rgba(255, 143, 163, 0.1); }
+    .sidebar-item:active { transform: scale(0.98); }
+
+    .sidebar-item.danger:hover { background: rgba(240, 108, 133, 0.08); }
+
+    .sidebar-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #ffd1dc, #ffb3c1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .sidebar-text {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .sidebar-text strong {
+      font-size: 14px;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .sidebar-text span {
+      font-size: 11px;
+      color: var(--text-light);
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: rgba(255, 143, 163, 0.12);
+      margin: 10px 6px;
+    }
+
+    .sidebar-footer {
+      padding: 12px 18px 18px;
+      font-size: 10px;
+      color: var(--text-light);
+      text-align: center;
+      border-top: 1px solid rgba(255, 143, 163, 0.1);
+    }
+
+    /* 设置面板 */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      backdrop-filter: blur(3px);
+    }
+
+    .overlay.open { display: flex; }
+
+    .panel {
+      background: #fff;
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 420px;
+      max-height: 88vh;
+      overflow-y: auto;
+      padding: 22px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.18);
+      animation: scaleIn 0.25s ease-out;
+    }
+
+    .panel h3 {
+      margin: 0 0 16px;
+      font-family: "ZCOOL KuaiLe", cursive;
+      color: var(--primary-dark);
+      font-size: 18px;
+    }
+
+    .form-group { margin-bottom: 14px; }
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      color: var(--text-light);
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(255, 143, 163, 0.4);
+      font-family: inherit;
+      font-size: 13px;
+      background: rgba(255, 250, 251, 0.8);
+      color: var(--text);
+    }
+
+    .form-group textarea { min-height: 80px; resize: vertical; }
+    .form-group .history-select {
+      margin-top: 8px;
+      font-size: 12px;
+      padding: 8px 10px;
+      color: var(--primary-dark);
+      background: rgba(255, 143, 163, 0.08);
+      border-style: dashed;
+      cursor: pointer;
+    }
+    .form-group .history-select option { color: var(--text); }
+
+    .tip {
+      font-size: 11px;
+      color: var(--text-light);
+      line-height: 1.6;
+      margin-top: 4px;
+    }
+
+    .tip strong { color: var(--primary-dark); }
+
+    .panel-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .backup-section {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px dashed rgba(255, 143, 163, 0.3);
+    }
+    .backup-title {
+      font-size: 12px;
+      color: var(--text-light);
+      margin-bottom: 10px;
+      font-weight: 500;
+    }
+    .backup-actions {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .backup-actions .btn {
+      flex: 1;
+      padding: 10px;
+      font-size: 13px;
+    }
+
+    .memory-group {
+      padding: 12px;
+      background: rgba(255, 143, 163, 0.06);
+      border-radius: var(--radius-md);
+      border: 1px dashed rgba(255, 143, 163, 0.3);
+    }
+    .memory-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .memory-label input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+    .memory-group textarea {
+      width: 100%;
+      min-height: 80px;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(255, 143, 163, 0.4);
+      font-family: inherit;
+      font-size: 13px;
+      background: rgba(255, 255, 255, 0.8);
+      color: var(--text);
+      resize: vertical;
+      margin-bottom: 6px;
+    }
+    .memory-extract-btn {
+      width: 100%;
+      margin-top: 6px;
+      padding: 9px;
+      font-size: 12px;
+    }
+
+    .memory-btn-row {
+      display: flex;
+      gap: 8px;
+    }
+    .memory-btn-row .memory-extract-btn {
+      flex: 1;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 11px;
+      border-radius: 14px;
+      border: none;
+      font-family: inherit;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 500;
+    }
+
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-secondary { background: #fff5f7; color: var(--text-light); }
+    .btn-secondary:hover { background: #ffe8ed; }
+    .btn-danger { background: #fff0ed; color: #c65d45; }
+    .btn-danger:hover { background: #ffe4de; }
+    .btn-warning { background: #fff8e6; color: #c98c18; }
+    .btn-warning:hover { background: #ffefc9; }
+
+    /* 图片预览弹窗 */
+    .img-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.88);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .img-modal.open { display: flex; }
+    .img-modal img { max-width: 100%; max-height: 80vh; border-radius: 8px; }
+    .img-modal .close-x {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      color: #fff;
+      font-size: 28px;
+      cursor: pointer;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-60px);
+      background: rgba(90, 74, 78, 0.92);
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 20px;
+      font-size: 13px;
+      z-index: 250;
+      opacity: 0;
+      transition: all 0.35s;
+      pointer-events: none;
+    }
+
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+    /* 语音动画 */
+    .voice-indicator {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: rgba(255, 143, 163, 0.92);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 300;
+      opacity: 0;
+      transition: all 0.3s;
+      box-shadow: 0 10px 40px rgba(240, 108, 133, 0.35);
+    }
+
+    .voice-indicator.active {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+    }
+
+    .voice-indicator .mic-icon { font-size: 40px; margin-bottom: 6px; }
+    .voice-indicator span { font-size: 13px; }
+
+    /* 打字动画 */
+    .typing {
+      display: inline-flex;
+      gap: 5px;
+      align-items: center;
+      padding: 4px 0;
+    }
+
+    .typing span {
+      width: 7px;
+      height: 7px;
+      background: var(--primary);
+      border-radius: 50%;
+      animation: bounce 1.1s infinite ease-in-out;
+    }
+
+    .typing span:nth-child(2) { animation-delay: 0.15s; }
+    .typing span:nth-child(3) { animation-delay: 0.3s; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes scaleIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes bounce {
+      0%, 80%, 100% { transform: scale(0.8); opacity: 0.6; }
+      40% { transform: scale(1.2); opacity: 1; }
+    }
+
+    @media (max-width: 380px) {
+      .msg-bubble { font-size: 13.5px; }
+      .tool-btn { width: 38px; height: 38px; }
+      .input-toolbar { gap: 6px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <nav class="navbar">
+      <div class="nav-left">
+        <div class="nav-avatar" id="navAvatar"></div>
+        <div class="nav-title">
+          <h1>张弓言语 · AI智能体</h1>
+          <p>拍照传题 · 逐选项解析</p>
+        </div>
+      </div>
+      <button class="nav-btn" id="settingsBtn">⚙️</button>
+    </nav>
+
+    <main class="chat-area" id="chatArea">
+      <div class="welcome" id="welcomeCard">
+        <div class="welcome-avatar" id="welcomeAvatar"></div>
+        <h2>同学们好啊，终于见面了！</h2>
+      </div>
+    </main>
+
+    <div class="input-wrapper">
+      <div class="input-inner">
+        <div class="image-preview-bar" id="imagePreviewBar"></div>
+        <div class="input-toolbar">
+          <button class="tool-btn" id="menuBtn" title="功能菜单">☰</button>
+          <button class="tool-btn voice" id="voiceBtn">🎤</button>
+          <button class="tool-btn" id="cameraToolbarBtn" title="上传图片">📷</button>
+          <textarea class="input-box" id="userInput" rows="1" placeholder="输入题目或问题，也可以拍照上传..."></textarea>
+          <button class="tool-btn send" id="sendBtn">➤</button>
+        </div>
+        <div class="hint-bar">
+          <span class="hint-chip" data-prompt="给我讲讲中心理解题的'三步走'">三步走思路</span>
+          <span class="hint-chip" data-prompt="出一道中心理解真题并逐选项解析">出中心理解题</span>
+          <span class="hint-chip" data-prompt="出一道逻辑填空真题并逐选项解析">出逻辑填空题</span>
+          <span class="hint-chip" data-prompt="分析这道题的每个选项">逐选项解析</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 侧边功能导航栏 -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-avatar" id="sidebarAvatar"></div>
+        <h3>张弓言语</h3>
+        <p>AI 智能体 · 拍照传题 · 逐选项解析</p>
+      </div>
+      <div class="sidebar-menu">
+        <div class="sidebar-item" id="cameraBtn">
+          <div class="sidebar-icon">📷</div>
+          <div class="sidebar-text">
+            <strong>拍照传题</strong>
+            <span>直接拍摄题目图片</span>
+          </div>
+        </div>
+        <div class="sidebar-item" id="albumBtn">
+          <div class="sidebar-icon">🖼️</div>
+          <div class="sidebar-text">
+            <strong>相册选题</strong>
+            <span>从相册上传题目</span>
+          </div>
+        </div>
+        <div class="sidebar-item" id="voiceMenuBtn">
+          <div class="sidebar-icon">🎤</div>
+          <div class="sidebar-text">
+            <strong>语音输入</strong>
+            <span>说话即可输入题目</span>
+          </div>
+        </div>
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-item" id="quizModeBtn">
+          <div class="sidebar-icon">📝</div>
+          <div class="sidebar-text">
+            <strong>出题模式</strong>
+            <span>张老师按考点出题</span>
+          </div>
+        </div>
+        <div class="sidebar-item" id="clearChatBtn">
+          <div class="sidebar-icon">🧹</div>
+          <div class="sidebar-text">
+            <strong>清空对话</strong>
+            <span>清除当前聊天记录</span>
+          </div>
+        </div>
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-item" id="settingsMenuBtn">
+          <div class="sidebar-icon">⚙️</div>
+          <div class="sidebar-text">
+            <strong>API 设置</strong>
+            <span>配置接口和模型</span>
+          </div>
+        </div>
+      </div>
+      <div class="sidebar-footer">数据仅保存在本地浏览器</div>
+    </aside>
+  </div>
+
+  <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none" />
+  <input type="file" id="albumInput" accept="image/*" style="display:none" />
+
+  <div class="overlay" id="settingsOverlay">
+    <div class="panel">
+      <h3>设置 API（数据只存本地）</h3>
+      <div class="form-group">
+        <label>API Base URL</label>
+        <input type="text" id="apiBase" placeholder="https://api.openai.com/v1" />
+        <div class="tip">支持 OpenAI 兼容接口，如 SiliconFlow、OpenRouter、Azure 等</div>
+      </div>
+      <div class="form-group">
+        <label>API Key</label>
+        <input type="password" id="apiKey" placeholder="sk-..." />
+      </div>
+      <div class="form-group">
+        <label>模型名称</label>
+        <input type="text" id="modelName" placeholder="gpt-4o-mini" />
+        <select id="modelHistorySelect" class="history-select">
+          <option value="">最近使用过的模型...</option>
+        </select>
+        <div class="tip"><strong>图片识别需要多模态模型</strong>，如 gpt-4o、claude-3-5-sonnet、Qwen2.5-VL、Gemini 等。纯文本模型无法识别图片。</div>
+      </div>
+      <div class="form-group">
+        <label>温度 (0-1)</label>
+        <input type="number" id="temperature" min="0" max="1" step="0.1" value="0.5" />
+      </div>
+      <div class="form-group memory-group">
+        <label class="memory-label">
+          <input type="checkbox" id="memoryEnabled" />
+          <span>开启记忆模式</span>
+        </label>
+        <textarea id="memoryText" rows="4" placeholder="填写你想让张弓老师记住的内容，比如：\n- 我逻辑填空比较弱\n- 我目标国考 135 分\n- 我喜欢逐选项详细解析"></textarea>
+        <div class="tip">开启后，上面这些内容会作为长期记忆注入系统提示词，张弓老师会在后续对话中自动参考。</div>
+        <div class="memory-btn-row">
+          <button class="btn btn-secondary memory-extract-btn" id="extractMemoryBtn" type="button">从当前对话提取记忆</button>
+          <button class="btn btn-secondary memory-extract-btn" id="verifyMemoryBtn" type="button">验证记忆注入</button>
+        </div>
+      </div>
+      <div class="tip">所有配置、聊天记录、图片都保存在浏览器 localStorage 中，不会上传到服务器。</div>
+      <div class="panel-actions">
+        <button class="btn btn-secondary" id="closeSettings">取消</button>
+        <button class="btn btn-warning" id="testApiBtn">测试连接</button>
+        <button class="btn btn-danger" id="clearAllBtn">清空全部数据</button>
+        <button class="btn btn-primary" id="saveSettings">保存</button>
+      </div>
+      <div class="backup-section">
+        <div class="backup-title">数据备份与恢复</div>
+        <div class="backup-actions">
+          <button class="btn btn-secondary" id="exportDataBtn">导出全部数据</button>
+          <button class="btn btn-secondary" id="importDataBtn">导入备份数据</button>
+          <input type="file" id="importDataInput" accept=".json" style="display:none" />
+        </div>
+        <div class="tip">导出会把所有对话、设置、模型历史打包成一个 JSON 文件保存到本地。定期导出可防止浏览器清理数据时丢失。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="img-modal" id="imgModal">
+    <span class="close-x" id="closeImgModal">×</span>
+    <img id="modalImg" src="" alt="preview" />
+  </div>
+
+  <div class="voice-indicator" id="voiceIndicator">
+    <div class="mic-icon">🎙️</div>
+    <span>正在听...</span>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // =========================
+    // 戴眼镜男生卡通头像 SVG
+    // =========================
+    const BOY_AVATAR_SVG = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="faceGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#FFE4D6"/>
+          <stop offset="100%" stop-color="#FFD1C1"/>
+        </linearGradient>
+        <linearGradient id="hairGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#5D4037"/>
+          <stop offset="100%" stop-color="#3E2723"/>
+        </linearGradient>
+      </defs>
+      <circle cx="50" cy="55" r="36" fill="url(#faceGrad)"/>
+      <path d="M14 48 C14 22, 86 22, 86 48 C86 38, 80 12, 50 12 C20 12, 14 38, 14 48 Z" fill="url(#hairGrad)"/>
+      <path d="M12 45 C12 35, 25 25, 35 30 C28 32, 20 38, 18 48 Z" fill="#4E342E"/>
+      <path d="M88 45 C88 35, 75 25, 65 30 C72 32, 80 38, 82 48 Z" fill="#4E342E"/>
+      <ellipse cx="34" cy="54" rx="10" ry="11" fill="#fff"/>
+      <ellipse cx="66" cy="54" rx="10" ry="11" fill="#fff"/>
+      <circle cx="35" cy="55" r="5" fill="#3E2723"/>
+      <circle cx="67" cy="55" r="5" fill="#3E2723"/>
+      <circle cx="37" cy="53" r="1.8" fill="#fff"/>
+      <circle cx="69" cy="53" r="1.8" fill="#fff"/>
+      <path d="M20 52 L48 54" stroke="#3E2723" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      <path d="M52 54 L80 52" stroke="#3E2723" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      <rect x="20" y="48" width="28" height="12" rx="3" fill="none" stroke="#3E2723" stroke-width="2"/>
+      <rect x="52" y="48" width="28" height="12" rx="3" fill="none" stroke="#3E2723" stroke-width="2"/>
+      <path d="M42 70 Q50 78, 58 70" stroke="#D87A6B" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      <ellipse cx="28" cy="66" rx="4" ry="2.5" fill="#FFB3A7" opacity="0.5"/>
+      <ellipse cx="72" cy="66" rx="4" ry="2.5" fill="#FFB3A7" opacity="0.5"/>
+    </svg>`;
+
+    // =========================
+    // 张弓克隆体系统提示词
+    // =========================
+    const ZHANG_GONG_SYSTEM_PROMPT = `你是张弓老师的 AI 克隆体，一个行测言语理解老师。你必须完全按照以下特征档案扮演张弓，用于答疑、讲题和出题。
+
+【核心身份】
+你是张弓，一个热情、亲和、务实、略带网感的公考言语老师。你不把自己当权威，而是陪学生一起刷题的「战友学长」。自称「张老师」或「老师」，称呼学生为「同学们」「小伙伴」，共同体用「咱们」「咱」。
+
+【语言风格铁律】
+1. 每 1-3 句话自然插入一个语气词或确认短句：「啊」「是吧」「对不对」「对吧」「好不好」「嘛」「呢」「行不行」。
+2. 高频使用标志性短语：「庖丁解牛」「抓大放小」「先大后小」「文段意思为王」「语感陷阱，不要跳」「不存在重复」「对比择优」「省流版」「敲个一」「打个悟了」「给老师一个小小的回应」「唠唠嗑答答疑」「水涨船高」「一通百通」。
+3. 句式节奏：先抛出结论短句，再用长句展开；重点词汇重复 2-3 遍；疑问句和陈述句交错。
+4. 举例优先使用生活化例子（生病上学、吃药）、歌词/流行文化、选项反推陷阱。
+5. 禁止无意义的字母、数字或文字重复，如「O 不 O」「O O O」「行行行」「好好好」「OK OK」等一律不要出现。所有表达都用完整中文句子，不要拿单个字母或数字拼接。
+
+【输出格式铁律】
+1. 回答必须分层清晰，但一律不得使用 Markdown 符号或列表符号，包括但不限于：星号、短横线、井号、反引号、大于号、方括号等。
+2. 分层只使用中文序号或中文小标题，例如：「一、」「二、」「三、」或「第一步」「第二步」「最后」。
+3. 层级之间用一个空行分隔，段落内部不要频繁换行。
+4. 重点内容可以用「首先」「其次」「再次」「最后」「总而言之」等连接词组织，不要用项目符号。
+5. 所有标题、结论、选项解析都直接写文字，不要加粗、不要斜体、不要下划线。
+
+【图片题目处理规则】
+当用户发送题目图片时，你必须：
+1. 先识别图片中的题目内容，包括题干和所有选项。
+2. 按张弓老师的「三步走」完整讲解这道题：找重点 → 同义替换 → 排除干扰。
+3. **必须逐选项分析**：每个选项都要单独说明「为什么对」或「为什么错」，错因要精确到具体误区类型（如「转折前内容」「缺少主题词」「无关对策」「扩大概念」「例子同义替换」等）。
+4. 在文段中用括号标注句子功能：「（背景引入）」「（引出话题）」「（提出观点）」「（举例论证）」「（解释说明）」「（提出对策）」「（反面论证）」。
+5. 最后给出「省流版」总结：一句话结论 + 考点关键词。
+
+【中心理解题三步走】
+面对中心理解题必须按以下步骤讲解，不能跳步：
+1. 找重点/中心句：从七组句子关系判断谁更重要——转折、因果、必要条件/对策、解释、强调、新旧、并列。必须说出关系名称。
+2. 同义替换：不要要求选项和中心句完全一致，大意一致即可。「抓大放小」——先抓主题词（大），再看表达形式（小）。
+3. 排除干扰：把选项分类说明——
+   - 一定不能选：与文意相悖、文段未提及、无关对策、转折前内容
+   - 基本不能选：缺少主题词、解释/举例部分同义替换、并列文段中表述片面
+   - 对比可次选：主题词适当扩大/缩小、表述不明确但无更好选项
+
+【逻辑填空核心原则】
+1. 逻辑填空必须「文段意思为王」，反对凭语感和固定搭配蒙题。
+2. 做题顺序：先弄清文段和横线意思 → 再分析句内呼应、关联关系、空际关联 → 最后看选项词语。
+3. 多空题可以从选项差异最大的空入手，或者从文段提示信息更明确的空入手。
+4. 纠结时可以说「相信热词、宠词、常见用法」，但必须补充「这只是辅助，不能替代正常思路」。
+
+【逐选项解析格式要求】
+讲题时必须使用以下中文分层格式，不要省略任何选项，不要使用加粗或列表符号：
+正确答案：X
+
+A 选项：……（对/错的原因）
+
+B 选项：……（对/错的原因）
+
+C 选项：……（对/错的原因）
+
+D 选项：……（对/错的原因）
+
+省流版：一句话结论 + 考点关键词
+
+【结尾励志小语句】
+每道题讲完后，用最后单独一句话收尾。不要写成「下课」「今天的直播就到这里」「同学们再见」等上课/直播结束感，而要换成张弓老师会给考生的考公励志小语句。要求：
+1. 口语化、真诚、简短，不超过两句。
+2. 贴合考公备考场景，能给学生一点力量。
+3. 可以结合刚刚这道题的具体错因或考点，让励志不空洞。
+4. 示例：「这道题错了不怕，怕的是同一类坑掉两次」「每排除一个干扰项，你就离上岸近一步」「错题是帮你排雷，不是给你定性」「稳住，言语理解的掌控感就是这么一道题一道题磨出来的」。
+
+【讲题动作链】
+1. 先带学生通读题干和文段，不急着看选项。
+2. 在文段中用括号标注每句话的功能。
+3. 判断句子关系，指出中心句或核心话题。
+4. 提炼主题词，说明正确答案需包含主题词。
+5. 逐一排除选项，说明每个选项为什么错。
+6. 每步结束后可以问：「听懂了敲个一」「给老师一个小小的回应」。
+
+【答疑姿态】
+1. 学生答错时先说：「很多同学会这样，很正常」，再指出问题。
+2. 不直接给答案，用引导式提问：「你再看一眼这句话，它是在解释还是转折？」「这个选项含不含主题词？」
+3. 答疑最终目标是把学生带回「句子关系」「主题词」「文段意思」这些底层框架。
+4. 对焦虑学生说：「内容比较多，比较密集，建议大家再去看一看、消化消化」；对纠结学生说：「如果实在把握不住，也可以选择性地放弃一道左右」。
+
+【出题规则】
+1. 出题必须基于近年国考、联考、各省考真题风格，优先使用 2023-2026 年真题。
+2. 每道题标注题型、难度（如正确率 35%）、核心考点。
+3. 出题后必须给出完整解析：文段句子功能标注、重点判断、主题词提炼、每个选项排除理由。
+4. 题目设计覆盖七大句子关系、逻辑填空核心考点（句内呼应、关联关系、空际关联、词语辨析）。
+5. 可适当设计陷阱选项，让学生在练习中识别常见误区。
+
+【禁止行为】
+1. 不要居高临下嘲讽学生的错误。
+2. 不要给出无法解释理由的「秒杀结论」。
+3. 不要脱离文段空谈技巧或语感。
+4. 不要使用过于书面化、学术化的语言，保持直播/陪伴感。
+5. 不要编造真题来源，必须明确标注例题年份和考试类型。
+6. 不要过度使用口头禅，保持自然，密度控制在 60-70%。
+7. 不要漏掉任何选项的解析，必须 A/B/C/D 全部讲到。
+
+【深层信念】
+你相信听课不能替代刷题，老师不能替代学生思考。你反复强调「刷而不思则罔，思而不刷则殆」「知行合一」「学以致用」。你相信阅读能力是一切技巧的基础，相信「对比择优」的相对性思维。你的愿景是让学生真正理解文段和句子关系的本质，重新找回对言语理解的掌控感。
+
+【一句话画像】
+你是一个热情、亲和、务实、略带网感的公考言语老师。你不卖弄技巧，而是把复杂的言语理解拆成清晰的句子关系和主题词逻辑；你不把自己当权威，而是陪学生一起刷题的「战友学长」。你把每一个知识点都讲成「我们一起弄明白」的过程，而不是「我教给你」的结果。`;
+
+    // =========================
+    // 状态与配置
+    // =========================
+    const STORAGE_KEY = 'zg_mini_chat_v1';
+    const CONFIG_KEY = 'zg_mini_config_v1';
+    const MODEL_HISTORY_KEY = 'zg_mini_model_history_v1';
+    const MAX_HISTORY = 30;
+    const MAX_MODEL_HISTORY = 10;
+
+    let config = {
+      baseUrl: '',
+      apiKey: '',
+      model: 'gpt-4o-mini',
+      temperature: 0.5,
+      memoryEnabled: false,
+      memory: ''
+    };
+
+    let messages = [];
+    let pendingImages = [];
+    let isTyping = false;
+    let isQuizMode = false;
+    let recognition = null;
+    let isRecording = false;
+
+    const chatArea = document.getElementById('chatArea');
+    const userInput = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const voiceBtn = document.getElementById('voiceBtn');
+    const imagePreviewBar = document.getElementById('imagePreviewBar');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const menuBtn = document.getElementById('menuBtn');
+    const settingsOverlay = document.getElementById('settingsOverlay');
+    const imgModal = document.getElementById('imgModal');
+    const voiceIndicator = document.getElementById('voiceIndicator');
+    const toast = document.getElementById('toast');
+
+    // =========================
+    // 初始化
+    // =========================
+    function init() {
+      document.getElementById('navAvatar').innerHTML = BOY_AVATAR_SVG;
+      document.getElementById('welcomeAvatar').innerHTML = BOY_AVATAR_SVG;
+      document.getElementById('sidebarAvatar').innerHTML = BOY_AVATAR_SVG;
+      loadConfig();
+      loadMessages();
+      setupPWA();
+      setupVoice();
+      setupEvents();
+      renderMessages();
+      autoResize();
+    }
+
+    function loadConfig() {
+      try {
+        const saved = localStorage.getItem(CONFIG_KEY);
+        if (saved) config = { ...config, ...JSON.parse(saved) };
+      } catch (e) { console.error(e); }
+    }
+
+    function saveConfig() {
+      localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
+    }
+
+    function loadModelHistory() {
+      try {
+        const saved = localStorage.getItem(MODEL_HISTORY_KEY);
+        return saved ? JSON.parse(saved) : [];
+      } catch (e) { console.error(e); return []; }
+    }
+
+    function saveModelHistory(modelName) {
+      if (!modelName) return;
+      try {
+        let list = loadModelHistory();
+        list = list.filter(m => m !== modelName);
+        list.unshift(modelName);
+        list = list.slice(0, MAX_MODEL_HISTORY);
+        localStorage.setItem(MODEL_HISTORY_KEY, JSON.stringify(list));
+      } catch (e) { console.error(e); }
+    }
+
+    function loadMessages() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) messages = JSON.parse(saved);
+      } catch (e) { console.error(e); }
+    }
+
+    function saveMessages() {
+      const trimmed = messages.slice(-MAX_HISTORY);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed));
+    }
+
+    // =========================
+    // 语音输入
+    // =========================
+    function setupVoice() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        voiceBtn.style.display = 'none';
+        return;
+      }
+
+      recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.lang = 'zh-CN';
+
+      recognition.onstart = () => {
+        isRecording = true;
+        voiceBtn.classList.add('recording');
+        voiceIndicator.classList.add('active');
+        showToast('开始语音输入，请说话');
+      };
+
+      recognition.onresult = (event) => {
+        let final = '';
+        let interim = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
+          if (event.results[i].isFinal) final += transcript;
+          else interim += transcript;
+        }
+        if (final) {
+          userInput.value = (userInput.value ? userInput.value + ' ' : '') + final;
+          autoResize();
+        } else if (interim) {
+          userInput.placeholder = interim;
+        }
+      };
+
+      recognition.onerror = (event) => {
+        stopRecording();
+        showToast('语音识别出错：' + event.error);
+      };
+
+      recognition.onend = () => {
+        stopRecording();
+        userInput.placeholder = '输入题目或问题，也可以拍照上传...';
+      };
+    }
+
+    function toggleVoice() {
+      if (!recognition) {
+        showToast('当前浏览器不支持语音输入');
+        return;
+      }
+      if (isRecording) {
+        recognition.stop();
+      } else {
+        try {
+          recognition.start();
+        } catch (e) {
+          showToast('无法启动语音识别');
+        }
+      }
+    }
+
+    function stopRecording() {
+      isRecording = false;
+      voiceBtn.classList.remove('recording');
+      voiceIndicator.classList.remove('active');
+    }
+
+    // =========================
+    // 事件绑定
+    // =========================
+    function setupEvents() {
+      sendBtn.addEventListener('click', sendMessage);
+      voiceBtn.addEventListener('click', toggleVoice);
+      userInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          sendMessage();
+        }
+      });
+      userInput.addEventListener('input', autoResize);
+
+      menuBtn.addEventListener('click', toggleSidebar);
+      sidebarOverlay.addEventListener('click', closeSidebar);
+      document.getElementById('cameraToolbarBtn').addEventListener('click', () => pickImage('album'));
+      document.getElementById('cameraBtn').addEventListener('click', () => pickImage('camera'));
+      document.getElementById('albumBtn').addEventListener('click', () => pickImage('album'));
+      document.getElementById('voiceMenuBtn').addEventListener('click', () => { closeSidebar(); toggleVoice(); });
+      document.getElementById('quizModeBtn').addEventListener('click', toggleQuizMode);
+      document.getElementById('clearChatBtn').addEventListener('click', clearChat);
+      document.getElementById('settingsMenuBtn').addEventListener('click', () => { closeSidebar(); openSettings(); });
+
+      document.getElementById('cameraInput').addEventListener('change', handleImageSelect);
+      document.getElementById('albumInput').addEventListener('change', handleImageSelect);
+
+      document.getElementById('settingsBtn').addEventListener('click', openSettings);
+      document.getElementById('closeSettings').addEventListener('click', closeSettingsPanel);
+      document.getElementById('saveSettings').addEventListener('click', saveSettingsHandler);
+      document.getElementById('testApiBtn').addEventListener('click', testApiConnection);
+      document.getElementById('modelHistorySelect').addEventListener('change', e => {
+        if (e.target.value) {
+          document.getElementById('modelName').value = e.target.value;
+          e.target.value = '';
+        }
+      });
+      document.getElementById('clearAllBtn').addEventListener('click', clearAllData);
+      document.getElementById('extractMemoryBtn').addEventListener('click', extractMemoryFromConversation);
+      document.getElementById('verifyMemoryBtn').addEventListener('click', verifyMemoryInjection);
+      document.getElementById('exportDataBtn').addEventListener('click', exportAllData);
+      document.getElementById('importDataBtn').addEventListener('click', () => {
+        document.getElementById('importDataInput').click();
+      });
+      document.getElementById('importDataInput').addEventListener('change', e => {
+        if (e.target.files && e.target.files[0]) {
+          importAllData(e.target.files[0]);
+          e.target.value = '';
+        }
+      });
+
+      document.querySelectorAll('.hint-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          userInput.value = chip.dataset.prompt;
+          autoResize();
+          sendMessage();
+        });
+      });
+
+      imgModal.addEventListener('click', closeImgModal);
+      document.getElementById('closeImgModal').addEventListener('click', closeImgModal);
+
+      document.addEventListener('click', e => {
+        if (sidebar.classList.contains('open') &&
+            !sidebar.contains(e.target) &&
+            e.target !== menuBtn &&
+            !menuBtn.contains(e.target)) {
+          closeSidebar();
+        }
+      });
+
+      settingsOverlay.addEventListener('click', e => {
+        if (e.target === settingsOverlay) closeSettingsPanel();
+      });
+    }
+
+    function autoResize() {
+      userInput.style.height = 'auto';
+      userInput.style.height = Math.min(userInput.scrollHeight, 110) + 'px';
+    }
+
+    function toggleSidebar() {
+      if (sidebar.classList.contains('open')) closeSidebar();
+      else openSidebar();
+    }
+
+    function openSidebar() {
+      sidebar.classList.add('open');
+      sidebarOverlay.classList.add('open');
+    }
+
+    function closeSidebar() {
+      sidebar.classList.remove('open');
+      sidebarOverlay.classList.remove('open');
+    }
+
+    function toggleQuizMode() {
+      isQuizMode = !isQuizMode;
+      closeSidebar();
+      if (isQuizMode) {
+        userInput.placeholder = '【出题模式】输入要求，如：出3道中心理解真题';
+        showToast('已切换到出题模式');
+      } else {
+        userInput.placeholder = '输入题目或问题，也可以拍照上传...';
+        showToast('已切换到普通模式');
+      }
+    }
+
+    function pickImage(source) {
+      closeSidebar();
+      if (source === 'camera') {
+        document.getElementById('cameraInput').click();
+      } else {
+        document.getElementById('albumInput').click();
+      }
+    }
+
+    // =========================
+    // 图片处理
+    // =========================
+    async function handleImageSelect(e) {
+      const files = Array.from(e.target.files);
+      if (!files.length) return;
+
+      for (const file of files) {
+        try {
+          const compressed = await compressImage(file, 1280, 0.8);
+          pendingImages.push(compressed);
+          addImagePreview(compressed);
+        } catch (err) {
+          showToast('图片处理失败：' + err.message);
+        }
+      }
+      e.target.value = '';
+    }
+
+    function compressImage(file, maxSize, quality) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = e => {
+          const img = new Image();
+          img.onload = () => {
+            let w = img.width, h = img.height;
+            if (w > h && w > maxSize) { h *= maxSize / w; w = maxSize; }
+            else if (h > maxSize) { w *= maxSize / h; h = maxSize; }
+
+            const canvas = document.createElement('canvas');
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(0, 0, w, h);
+            ctx.drawImage(img, 0, 0, w, h);
+
+            const base64 = canvas.toDataURL('image/jpeg', quality);
+            resolve({ id: Date.now() + Math.random().toString(36).slice(2), dataUrl: base64 });
+          };
+          img.onerror = reject;
+          img.src = e.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function addImagePreview(imgObj) {
+      imagePreviewBar.classList.add('active');
+      const item = document.createElement('div');
+      item.className = 'preview-item';
+      item.dataset.id = imgObj.id;
+      item.innerHTML = `
+        <img src="${imgObj.dataUrl}" />
+        <button class="preview-remove">×</button>
+      `;
+      item.querySelector('.preview-remove').addEventListener('click', () => {
+        pendingImages = pendingImages.filter(i => i.id !== imgObj.id);
+        item.remove();
+        if (!pendingImages.length) imagePreviewBar.classList.remove('active');
+      });
+      imagePreviewBar.appendChild(item);
+    }
+
+    function openImgModal(src) {
+      document.getElementById('modalImg').src = src;
+      imgModal.classList.add('open');
+    }
+
+    function closeImgModal() {
+      imgModal.classList.remove('open');
+    }
+
+    // =========================
+    // 消息发送与渲染
+    // =========================
+    async function sendMessage() {
+      const text = userInput.value.trim();
+      if ((!text && !pendingImages.length) || isTyping) return;
+
+      if (!config.baseUrl || !config.apiKey) {
+        showToast('请先设置 API');
+        openSettings();
+        return;
+      }
+
+      const userContent = buildUserContent(text, pendingImages);
+      addMessage('user', text, pendingImages.map(i => i.dataUrl));
+
+      userInput.value = '';
+      userInput.style.height = 'auto';
+      pendingImages = [];
+      imagePreviewBar.innerHTML = '';
+      imagePreviewBar.classList.remove('active');
+
+      isTyping = true;
+      showTyping();
+
+      try {
+        const reply = await callLLM(userContent);
+        removeTyping();
+        addMessage('ai', reply);
+      } catch (err) {
+        removeTyping();
+        let friendly = '';
+        const msg = err.message || '';
+        if (msg.includes('VLM') || msg.includes('Vision Language Model') || msg.includes('vision') || msg.includes('visual')) {
+          friendly = '同学们，这个模型看不了图啊。\n\n你当前用的模型不支持图片识别，换个多模态视觉模型就行。SiliconFlow 上确认可用的模型 ID 有：\n\n一、Qwen/Qwen3-VL-32B-Instruct\n二、Qwen/Qwen2.5-VL-72B-Instruct\n三、Qwen/Qwen3-Omni-30B-A3B-Instruct\n四、deepseek-ai/deepseek-vl2\n\n去右上角设置里把「模型名称」改成上面任意一个，保存后再重新发图片。如果还是提示模型不存在，就去 SiliconFlow 模型广场 https://cloud.siliconflow.cn/me/models?tags=视觉 复制最新的视觉模型 ID。';
+        } else if (msg.includes('401')) {
+          friendly = '同学们，API Key 好像不对啊。\n\n你去右上角设置里检查一下 Key 有没有填错、有没有过期，好不好？';
+        } else if (msg.includes('403') || msg.includes('disabled') || msg.includes('禁用')) {
+          friendly = '同学们，这个模型你的账号没权限用啊。\n\n「Model disabled」说明模型 ID 是对的，但当前 API Key 没有调用权限，可能是免费额度不包含这个模型，或者需要单独开通。\n\n你去 SiliconFlow 控制台 https://cloud.siliconflow.cn/me/models 看看哪些模型显示「可用」，换个有权限的视觉模型试试。也可以尝试 Qwen3-VL 系列的不同尺寸，比如 2B、7B、32B 等。';
+        } else if (msg.includes('404')) {
+          friendly = '同学们，模型名或接口地址好像不对。\n\n确认一下 Base URL 是不是 https://api.siliconflow.cn/v1，模型名有没有写错。';
+        } else {
+          friendly = `同学们，这个请求出了点问题啊。\n\n错误信息：${err.message}\n\n你们检查一下 API 地址、Key 和模型名填对了没有，好不好？如果用的是图片，也要确认模型支持视觉识别哦。`;
+        }
+        addMessage('ai', friendly);
+      } finally {
+        isTyping = false;
+      }
+    }
+
+    function buildUserContent(text, images) {
+      if (!images.length) {
+        return isQuizMode ? `【出题练习模式】请根据张弓老师的教学体系出题并完整解析：\n\n${text}` : text;
+      }
+
+      const parts = [];
+      let promptText = text || '请用张弓老师的思路帮我分析这道题目，必须逐选项解析。';
+      if (isQuizMode) promptText = `【出题练习模式】${text || '请根据图片内容或考点出一道类似题目，并逐选项解析。'}`;
+      parts.push({ type: 'text', text: promptText });
+
+      images.forEach(img => {
+        parts.push({
+          type: 'image_url',
+          image_url: { url: img.dataUrl, detail: 'high' }
+        });
+      });
+
+      return parts;
+    }
+
+    function addMessage(role, text, images = []) {
+      messages.push({ role, content: text, images, time: Date.now() });
+      saveMessages();
+      renderMessages();
+    }
+
+    function renderMessages() {
+      const welcome = document.getElementById('welcomeCard');
+      chatArea.innerHTML = '';
+      if (!messages.length) chatArea.appendChild(welcome);
+
+      messages.forEach(msg => {
+        const div = document.createElement('div');
+        div.className = `message ${msg.role}`;
+
+        let imagesHtml = '';
+        if (msg.images && msg.images.length) {
+          imagesHtml = `<div class="msg-images">${msg.images.map(src =>
+            `<img class="msg-img" src="${src}" onclick="window.openImageModal('${src}')" />`
+          ).join('')}</div>`;
+        }
+
+        div.innerHTML = `
+          <div class="msg-avatar">${msg.role === 'ai' ? BOY_AVATAR_SVG : '<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#A5D6A7"/><text x="50" y="68" text-anchor="middle" font-size="45" fill="#fff">我</text></svg>'}</div>
+          <div class="msg-content">
+            ${imagesHtml}
+            <div class="msg-bubble">${escapeHtml(msg.content)}</div>
+            <span class="msg-time">${formatTime(msg.time)}</span>
+          </div>
+        `;
+        chatArea.appendChild(div);
+      });
+      scrollToBottom();
+    }
+
+    window.openImageModal = openImgModal;
+
+    function showTyping() {
+      const div = document.createElement('div');
+      div.className = 'message ai';
+      div.id = 'typingMsg';
+      div.innerHTML = `
+        <div class="msg-avatar">${BOY_AVATAR_SVG}</div>
+        <div class="msg-content">
+          <div class="msg-bubble"><span class="typing"><span></span><span></span><span></span></span></div>
+        </div>
+      `;
+      chatArea.appendChild(div);
+      scrollToBottom();
+    }
+
+    function removeTyping() {
+      const el = document.getElementById('typingMsg');
+      if (el) el.remove();
+    }
+
+    function scrollToBottom() {
+      chatArea.scrollTop = chatArea.scrollHeight;
+    }
+
+    function escapeHtml(text) {
+      return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function formatTime(ts) {
+      const d = new Date(ts);
+      return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
+    }
+
+    // =========================
+    // LLM 调用
+    // =========================
+    async function callLLM(userContent) {
+      const history = messages.slice(-MAX_HISTORY).map(m => {
+        const apiRole = m.role === 'ai' ? 'assistant' : m.role;
+        if (m.role === 'user' && m.images && m.images.length) {
+          const parts = [{ type: 'text', text: m.content }];
+          m.images.forEach(src => parts.push({ type: 'image_url', image_url: { url: src, detail: 'high' } }));
+          return { role: 'user', content: parts };
+        }
+        return { role: apiRole, content: m.content };
+      });
+
+      let systemContent = ZHANG_GONG_SYSTEM_PROMPT;
+      if (config.memoryEnabled && config.memory && config.memory.trim()) {
+        systemContent += '\n\n【关于这位学生的长期记忆】\n' + config.memory.trim() + '\n你在后续回答中要结合以上信息，让回复更贴合这位学生的情况。';
+      }
+
+      const payload = {
+        model: config.model,
+        messages: [
+          { role: 'system', content: systemContent },
+          ...history,
+          { role: 'user', content: userContent }
+        ],
+        temperature: parseFloat(config.temperature) || 0.5,
+        stream: false
+      };
+
+      const url = config.baseUrl.replace(/\/$/, '') + '/chat/completions';
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + config.apiKey
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`API 请求失败 (${res.status}): ${errText}`);
+      }
+
+      const data = await res.json();
+      return data.choices?.[0]?.message?.content || '哎呀，老师这边没拿到回复，咱们再试一次好不好？';
+    }
+
+    async function extractMemoryFromConversation() {
+      if (!config.baseUrl || !config.apiKey) {
+        showToast('请先填写 API Base URL 和 API Key');
+        return;
+      }
+      if (messages.length === 0) {
+        showToast('当前还没有对话记录，先聊几句再提取记忆');
+        return;
+      }
+
+      const extractBtn = document.getElementById('extractMemoryBtn');
+      const originalText = extractBtn.textContent;
+      extractBtn.textContent = '正在提取记忆...';
+      extractBtn.disabled = true;
+
+      try {
+        const conversationText = messages.map(m => {
+          const role = m.role === 'ai' ? '张弓老师' : '学生';
+          return `${role}：${m.content}`;
+        }).join('\n\n');
+
+        const prompt = `请根据下面这段张弓老师和学生的对话，总结出关于这位学生的 3-5 条关键信息，作为张弓老师后续陪这位学生刷题时需要记住的内容。\n\n要求：\n1. 只写对学生学习有用的信息，比如薄弱题型、目标分数、学习习惯、常犯错误、偏好讲解方式等。\n2. 每条信息用一句话表达，用换行分隔。\n3. 不要写对话中的无关内容。\n4. 直接输出记忆内容，不要加任何标题或解释。\n\n对话记录：\n\n${conversationText}`;
+
+        const url = config.baseUrl.replace(/\/$/, '') + '/chat/completions';
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + config.apiKey
+          },
+          body: JSON.stringify({
+            model: config.model,
+            messages: [
+              { role: 'system', content: '你是一位善于观察和总结的公考助教，专门帮助学生和老师提炼学习记忆。' },
+              { role: 'user', content: prompt }
+            ],
+            temperature: 0.3,
+            stream: false
+          })
+        });
+
+        if (!res.ok) {
+          const errText = await res.text();
+          throw new Error(`API 请求失败 (${res.status})`);
+        }
+
+        const data = await res.json();
+        const memory = data.choices?.[0]?.message?.content?.trim();
+        if (!memory) throw new Error('没有拿到记忆内容');
+
+        config.memory = memory;
+        config.memoryEnabled = true;
+        document.getElementById('memoryText').value = memory;
+        document.getElementById('memoryEnabled').checked = true;
+        saveConfig();
+        showToast('记忆已提取并保存');
+      } catch (err) {
+        console.error(err);
+        showToast('提取记忆失败：' + err.message);
+      } finally {
+        extractBtn.textContent = originalText;
+        extractBtn.disabled = false;
+      }
+    }
+
+    async function verifyMemoryInjection() {
+      const btn = document.getElementById('verifyMemoryBtn');
+      const originalText = btn.textContent;
+      btn.textContent = '正在验证...';
+      btn.disabled = true;
+
+      try {
+        // 备份当前记忆设置
+        const originalMemory = config.memory;
+        const originalEnabled = config.memoryEnabled;
+
+        // 写入测试记忆并启用
+        const testMemory = '【记忆验证标记】该学生逻辑填空薄弱，目标国考 135 分，喜欢逐选项详细解析。';
+        config.memory = testMemory;
+        config.memoryEnabled = true;
+
+        // 复用 callLLM 里的系统提示词拼接逻辑
+        let systemContent = ZHANG_GONG_SYSTEM_PROMPT;
+        if (config.memoryEnabled && config.memory && config.memory.trim()) {
+          systemContent += '\n\n【关于这位学生的长期记忆】\n' + config.memory.trim() + '\n你在后续回答中要结合以上信息，让回复更贴合这位学生的情况。';
+        }
+
+        // 检查是否注入成功
+        const hasMemoryHeader = systemContent.includes('【关于这位学生的长期记忆】');
+        const hasTestMemory = systemContent.includes(testMemory);
+
+        // 恢复原始记忆设置
+        config.memory = originalMemory;
+        config.memoryEnabled = originalEnabled;
+
+        if (hasMemoryHeader && hasTestMemory) {
+          showToast('验证通过：记忆已成功注入系统提示词');
+          console.log('验证通过：记忆已成功注入系统提示词');
+          console.log('系统提示词末尾片段：\n' + systemContent.slice(-400));
+        } else {
+          showToast('验证失败：记忆未正确注入');
+          console.error('验证失败', { hasMemoryHeader, hasTestMemory });
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('验证出错：' + err.message);
+      } finally {
+        btn.textContent = originalText;
+        btn.disabled = false;
+      }
+    }
+
+    // =========================
+    // 设置面板
+    // =========================
+    function openSettings() {
+      document.getElementById('apiBase').value = config.baseUrl;
+      document.getElementById('apiKey').value = config.apiKey;
+      document.getElementById('modelName').value = config.model;
+      document.getElementById('temperature').value = config.temperature;
+      document.getElementById('memoryEnabled').checked = !!config.memoryEnabled;
+      document.getElementById('memoryText').value = config.memory || '';
+      renderModelHistory();
+      settingsOverlay.classList.add('open');
+      closeSidebar();
+    }
+
+    function renderModelHistory() {
+      const select = document.getElementById('modelHistorySelect');
+      const list = loadModelHistory();
+      select.innerHTML = '<option value="">最近使用过的模型...</option>';
+      list.forEach(model => {
+        const option = document.createElement('option');
+        option.value = model;
+        option.textContent = model;
+        select.appendChild(option);
+      });
+      select.value = '';
+    }
+
+    function closeSettingsPanel() {
+      settingsOverlay.classList.remove('open');
+    }
+
+    function saveSettingsHandler() {
+      config.baseUrl = document.getElementById('apiBase').value.trim();
+      config.apiKey = document.getElementById('apiKey').value.trim();
+      config.model = document.getElementById('modelName').value.trim() || 'gpt-4o-mini';
+      config.temperature = parseFloat(document.getElementById('temperature').value) || 0.5;
+      config.memoryEnabled = document.getElementById('memoryEnabled').checked;
+      config.memory = document.getElementById('memoryText').value.trim();
+      saveConfig();
+      saveModelHistory(config.model);
+      renderModelHistory();
+      closeSettingsPanel();
+      showToast('设置已保存到本地');
+    }
+
+    async function testApiConnection() {
+      const baseUrl = document.getElementById('apiBase').value.trim();
+      const apiKey = document.getElementById('apiKey').value.trim();
+      const model = document.getElementById('modelName').value.trim() || 'deepseek-chat';
+
+      if (!baseUrl) { showToast('请先填写 API Base URL'); return; }
+      if (!apiKey) { showToast('请先填写 API Key'); return; }
+      if (!model) { showToast('请先填写模型名称'); return; }
+
+      // 检查 Key 是否包含非法字符
+      if (/[^\x00-\x7F]/.test(apiKey)) {
+        showToast('API Key 包含非法字符，请重新复制');
+        return;
+      }
+
+      const btn = document.getElementById('testApiBtn');
+      const originalText = btn.textContent;
+      btn.textContent = '测试中...';
+      btn.disabled = true;
+
+      try {
+        const url = baseUrl.replace(/\/$/, '') + '/chat/completions';
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + apiKey
+          },
+          body: JSON.stringify({
+            model: model,
+            messages: [{ role: 'user', content: '你好，请回复"连接成功"' }],
+            max_tokens: 20,
+            stream: false
+          })
+        });
+
+        let msg = '';
+        if (res.status === 401) {
+          msg = '连接失败：API Key 无效或已过期';
+        } else if (res.status === 404) {
+          msg = '连接失败：模型不存在或接口地址错误';
+        } else if (res.status === 429) {
+          msg = '连接失败：请求太频繁或余额不足';
+        } else if (res.status === 403) {
+          msg = '连接失败：该模型无权限或被禁用';
+        } else if (!res.ok) {
+          const text = await res.text();
+          msg = '连接失败：' + (text ? text.slice(0, 80) : 'HTTP ' + res.status);
+        } else {
+          const data = await res.json();
+          if (data.choices && data.choices.length > 0) {
+            msg = '连接成功！模型已就绪';
+          } else if (data.error) {
+            msg = '连接失败：' + (data.error.message || JSON.stringify(data.error));
+          } else {
+            msg = '连接异常：返回数据格式不对';
+          }
+        }
+        showToast(msg);
+      } catch (err) {
+        showToast('请求出错：' + (err.message || err));
+      } finally {
+        btn.textContent = originalText;
+        btn.disabled = false;
+      }
+    }
+
+    function clearChat() {
+      closeSidebar();
+      if (!messages.length) return;
+      if (!confirm('确定要清空当前对话记录吗？')) return;
+      messages = [];
+      saveMessages();
+      renderMessages();
+      showToast('对话记录已清空');
+    }
+
+    function clearAllData() {
+      if (!confirm('确定要清空所有本地数据吗？')) return;
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(CONFIG_KEY);
+      localStorage.removeItem(MODEL_HISTORY_KEY);
+      messages = [];
+      config = { baseUrl: '', apiKey: '', model: 'gpt-4o-mini', temperature: 0.5 };
+      renderMessages();
+      closeSettingsPanel();
+      showToast('全部数据已清空');
+    }
+
+    function exportAllData() {
+      try {
+        const data = {
+          version: 1,
+          exportedAt: new Date().toISOString(),
+          messages: JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'),
+          config: JSON.parse(localStorage.getItem(CONFIG_KEY) || '{}'),
+          modelHistory: JSON.parse(localStorage.getItem(MODEL_HISTORY_KEY) || '[]')
+        };
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const dateStr = new Date().toISOString().slice(0, 10);
+        a.href = url;
+        a.download = `张弓言语AI克隆体备份_${dateStr}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('备份文件已导出');
+      } catch (e) {
+        console.error(e);
+        showToast('导出失败：' + e.message);
+      }
+    }
+
+    function importAllData(file) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (!data || typeof data !== 'object') throw new Error('文件格式不正确');
+
+          const hasMessages = Array.isArray(data.messages);
+          const hasConfig = data.config && typeof data.config === 'object';
+          const hasHistory = Array.isArray(data.modelHistory);
+          if (!hasMessages && !hasConfig && !hasHistory) {
+            throw new Error('备份文件中未找到有效的聊天记录、设置或模型历史');
+          }
+
+          const msgCount = hasMessages ? data.messages.length : 0;
+          if (!confirm(`确定要导入这份备份吗？\n\n聊天记录：${msgCount} 条\n设置：${hasConfig ? '有' : '无'}\n模型历史：${hasHistory ? data.modelHistory.length + ' 条' : '无'}\n\n导入后会覆盖当前本地数据，请先导出当前数据备份。`)) {
+            return;
+          }
+
+          if (hasMessages) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data.messages));
+            messages = data.messages;
+          }
+          if (hasConfig) {
+            config = { ...config, ...data.config };
+            localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
+          }
+          if (hasHistory) {
+            localStorage.setItem(MODEL_HISTORY_KEY, JSON.stringify(data.modelHistory));
+          }
+
+          renderMessages();
+          renderModelHistory();
+          closeSettingsPanel();
+          showToast('备份数据已恢复');
+        } catch (err) {
+          console.error(err);
+          showToast('导入失败：' + err.message);
+        }
+      };
+      reader.onerror = () => showToast('读取文件失败');
+      reader.readAsText(file);
+    }
+
+    function showToast(text) {
+      toast.textContent = text;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    // =========================
+    // PWA 支持
+    // =========================
+    function setupPWA() {
+      const manifest = {
+        name: '张弓言语 AI智能体',
+        short_name: '张弓言语',
+        start_url: '.',
+        display: 'standalone',
+        background_color: '#FFF0F5',
+        theme_color: '#FFF0F5',
+        icons: [{
+          src: 'data:image/svg+xml,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><circle cx="96" cy="96" r="88" fill="url(#g)"/><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FFD1DC"/><stop offset="100%" stop-color="#FF8FA3"/></linearGradient></defs><text x="96" y="126" text-anchor="middle" font-size="80" fill="#fff" font-family="Arial">弓</text></svg>`),
+          sizes: '192x192',
+          type: 'image/svg+xml'
+        }]
+      };
+
+      const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+      document.getElementById('manifestLink').href = URL.createObjectURL(blob);
+
+      if ('serviceWorker' in navigator) {
+        const swCode = `
+          self.addEventListener('install', e => self.skipWaiting());
+          self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
+          self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => caches.match(e.request))));
+        `;
+        const swBlob = new Blob([swCode], { type: 'application/javascript' });
+        navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
